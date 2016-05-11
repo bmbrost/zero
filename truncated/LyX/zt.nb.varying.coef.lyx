@@ -1,0 +1,450 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 1in
+\bottommargin 1in
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\noindent
+\align center
+
+\shape smallcaps
+\size larger
+Negative Binomial Generalized Linear Mixed Model for
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+
+\shape smallcaps
+\size larger
+Zero-truncated Count Data
+\end_layout
+
+\begin_layout Standard
+\align center
+Brian M.
+ Brost
+\end_layout
+
+\begin_layout Standard
+\align center
+23 March 2016
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset CommandInset line
+LatexCommand rule
+width "75col%"
+height "0.5pt"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection*
+Description
+\end_layout
+
+\begin_layout Standard
+A generalized linear mixed model with varying-coefficients for zero-truncated,
+ grouped count data.
+\end_layout
+
+\begin_layout Subsubsection*
+Implementation
+\end_layout
+
+\begin_layout Standard
+The file zt.nb.varying.coef.sim.R simulates data according to the model statement
+ presented below, and zt.nb.varying.coef.mcmc.R contains the MCMC algorithm for
+ model fitting.
+ 
+\end_layout
+
+\begin_layout Subsubsection*
+Derivation of zero-truncated negative binomial distribution
+\end_layout
+
+\begin_layout Standard
+The probability mass function of the (non-truncated) negative binomial distribut
+ion is:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\left[z\right]=\left(\frac{\Gamma\left(z+\alpha\right)}{\Gamma\left(a\right)\Gamma\left(z+1\right)}\right)\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}\left(1-\frac{\alpha}{\lambda+\alpha}\right)^{z}
+\end{equation}
+
+\end_inset
+
+It follows that the probability that 
+\begin_inset Formula $z=0$
+\end_inset
+
+ is 
+\begin_inset Formula 
+\begin{eqnarray}
+\left[z\mid z=0\right] & = & \left(\frac{\Gamma\left(\alpha\right)}{\Gamma\left(a\right)\Gamma\left(1\right)}\right)\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}\left(1-\frac{\alpha}{\lambda+\alpha}\right)^{0}\\
+ & = & \left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha},
+\end{eqnarray}
+
+\end_inset
+
+and thus the probability that 
+\begin_inset Formula $z>0$
+\end_inset
+
+ is 
+\begin_inset Formula $1-\left[z\mid z=0\right]=1-\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}$
+\end_inset
+
+.
+ We arrive at the density function of the zero-truncated negative binomial
+ distribution by excluding the probability that 
+\begin_inset Formula $z=0$
+\end_inset
+
+ from the standard negative binomial distribution (Eq.
+ 1).
+ This is accomplished by dividing Eq.
+ 1 by 
+\begin_inset Formula $\left[z\mid z=0\right]$
+\end_inset
+
+:
+\begin_inset Formula 
+\begin{eqnarray}
+\left[z\mid z>0\right] & = & \left(\frac{\Gamma\left(z+\alpha\right)}{\Gamma\left(a\right)\Gamma\left(z+1\right)}\right)\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}\left(1-\frac{\alpha}{\lambda+\alpha}\right)^{z}\left(1-\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}\right)^{-1}\\
+ & = & \text{NB}\left(z\mid\lambda,\alpha\right)\left(1-\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}\right)^{-1}.
+\end{eqnarray}
+
+\end_inset
+
+We abbreviate the density function for the zero-truncated negative binomial
+ distribution as 
+\begin_inset Formula $\text{ZTNB}\left(\lambda,\alpha\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection*
+Model statement
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $z_{ij}$
+\end_inset
+
+, for 
+\begin_inset Formula $i=1,\ldots,n_{j}$
+\end_inset
+
+ and 
+\begin_inset Formula $j=1,\ldots,J$
+\end_inset
+
+, denote observed, non-zero count data (i.e., 
+\begin_inset Formula $z_{ij}$
+\end_inset
+
+ are integers greater than 0), where the index 
+\begin_inset Formula $i$
+\end_inset
+
+ denotes replicate observations within group 
+\begin_inset Formula $j$
+\end_inset
+
+, and 
+\begin_inset Formula $n_{j}$
+\end_inset
+
+ is the number of observations in group 
+\begin_inset Formula $j$
+\end_inset
+
+.
+ Furthermore, let 
+\begin_inset Formula $\mathbf{x}_{ij}$
+\end_inset
+
+ be a vector of 
+\begin_inset Formula $p$
+\end_inset
+
+ covariates (including the intercept) associated with 
+\begin_inset Formula $z_{ij}$
+\end_inset
+
+ and 
+\begin_inset Formula $\boldsymbol{\beta}_{j}$
+\end_inset
+
+ be the corresponding vector of coefficients for group 
+\begin_inset Formula $j$
+\end_inset
+
+.
+\begin_inset Formula 
+\begin{eqnarray*}
+z_{ij}\mid z_{ij}>0 & \sim & \text{ZTNB}\left(\lambda_{ij},\alpha\right)\\
+\log\left(\lambda_{ij}\right) & = & \mathbf{x}_{ij}^{\prime}\boldsymbol{\beta}_{j}\\
+\boldsymbol{\beta}_{j} & \sim & {\cal N}\left(\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}\right)\\
+\boldsymbol{\mu}_{\beta} & \sim & {\cal N}\left(\mathbf{0},\sigma_{\beta}^{2}\mathbf{I}\right)\\
+\boldsymbol{\boldsymbol{\Sigma}}^{-1} & \sim & \text{Wish}\left(\mathbf{S}_{0}^{-1},\nu\right)\\
+\alpha & \sim & \text{Gamma}\left(a,b\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection*
+Full conditional distributions
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\emph on
+Regression coefficients (
+\begin_inset Formula $\boldsymbol{\beta}_{j}$
+\end_inset
+
+):
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset Formula 
+\begin{eqnarray*}
+\left[\boldsymbol{\beta}_{j}\mid\cdot\right] & \propto & \prod_{i=1}^{n_{j}}\left[z_{ij}\mid\mathbf{x}_{ij}^{\prime}\boldsymbol{\beta}_{j},\alpha\right]\left[\boldsymbol{\beta}_{j}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}\right]\\
+ & \propto & \prod_{i=1}^{n_{j}}\text{ZTNB}\left(z_{ij}\mid\mathbf{x}_{ij}^{\prime}\boldsymbol{\beta}_{j},\alpha\right){\cal N}\left(\boldsymbol{\beta}_{j}\mid\mathbf{\boldsymbol{\mu}_{\beta}},\boldsymbol{\Sigma}\right).
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+The update for 
+\begin_inset Formula $\boldsymbol{\beta}_{j}$
+\end_inset
+
+ proceeds using Metropolis-Hastings.
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\emph on
+\begin_inset VSpace bigskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\emph on
+Mean of regression coefficients (
+\begin_inset Formula $\boldsymbol{\mu}_{\beta}$
+\end_inset
+
+):
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset Formula 
+\begin{eqnarray*}
+\left[\boldsymbol{\mu}_{\beta}\mid\cdot\right] & \propto & \prod_{j=1}^{J}\left[\boldsymbol{\beta}_{j}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}\right]\left[\boldsymbol{\mu}_{\beta}\mid\mathbf{0},\sigma_{\beta}^{2}\right]\\
+ & \propto & \prod_{j=1}^{J}{\cal N}\left(\boldsymbol{\beta}_{j}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}\right){\cal N}\left(\boldsymbol{\mu}_{\beta}\mid\mathbf{0},\sigma_{\beta}^{2}\mathbf{I}\right)\\
+ & \propto & \exp\left\{ \sum_{j=1}^{J}\left(-\frac{1}{2}\left(\boldsymbol{\beta}_{j}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\boldsymbol{\Sigma}^{-1}\left(\boldsymbol{\beta}_{j}-\boldsymbol{\mu}_{\beta}\right)\right)\right\} \\
+ &  & \qquad\times\exp\left\{ -\frac{1}{2}\left(\boldsymbol{\mu}_{\beta}-\mathbf{0}\right)^{\prime}\left(\sigma_{\beta}^{2}\mathbf{I}\right)^{-1}\left(\boldsymbol{\mu}_{\beta}-\mathbf{0}\right)\right\} \\
+ & \propto & \exp\left\{ -\frac{1}{2}\left(-2\left(\sum_{j=1}^{J}\mathbf{\boldsymbol{\beta}}_{j}^{\prime}\boldsymbol{\Sigma}^{-1}\right)\boldsymbol{\mu}_{\beta}+\boldsymbol{\mu}_{\beta}^{\prime}\left(J\boldsymbol{\Sigma}^{-1}\right)\boldsymbol{\mu}_{\beta}\right)\right\} \\
+ &  & \qquad\times\exp\left\{ -\frac{1}{2}\left(\boldsymbol{\mu}_{\beta}^{\prime}\left(\sigma_{\beta}^{2}\mathbf{I}\right)^{-1}\boldsymbol{\mu}_{\beta}\right)\right\} \\
+ & \propto & \exp\left\{ -\frac{1}{2}\left(-2\left(\sum_{j=1}^{J}\mathbf{\boldsymbol{\beta}}_{j}^{\prime}\boldsymbol{\boldsymbol{\Sigma}}^{-1}\right)\boldsymbol{\mu}_{\beta}+\boldsymbol{\mu}_{\beta}^{\prime}\left(J\boldsymbol{\Sigma}^{-1}+\left(\sigma_{\beta}^{2}\mathbf{I}\right)^{-1}\right)\boldsymbol{\mu}_{\beta}\right)\right\} \\
+ & = & {\cal N}(\mathbf{A}^{-1}\mathbf{b},\mathbf{A}^{-1}),
+\end{eqnarray*}
+
+\end_inset
+
+where 
+\begin_inset Formula $\mathbf{A}=J\boldsymbol{\boldsymbol{\Sigma}}^{-1}+\left(\sigma_{\beta}^{2}\mathbf{I}\right)^{-1}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathbf{b}^{\prime}=\boldsymbol{\beta}^{\prime}\boldsymbol{\Sigma}^{-1}$
+\end_inset
+
+, where 
+\begin_inset Formula $\boldsymbol{\beta}$
+\end_inset
+
+ is the vector sum 
+\begin_inset Formula $\sum_{j=1}^{J}\boldsymbol{\beta}_{j}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\emph on
+\begin_inset VSpace bigskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\emph on
+Variance-covariance of regression coefficients (
+\begin_inset Formula $\boldsymbol{\Sigma}$
+\end_inset
+
+):
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset Formula 
+\begin{eqnarray*}
+\left[\boldsymbol{\boldsymbol{\Sigma}}\mid\cdot\right] & \propto & \prod_{j=1}^{J}\left[\boldsymbol{\beta}_{j}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}\right]\left[\boldsymbol{\Sigma}\mid\mathbf{S}_{0},\nu\right]\\
+ & \propto & \prod_{j=1}^{J}{\cal N}\left(\boldsymbol{\beta}_{j}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}\right)\text{Wish}\left(\boldsymbol{\Sigma}\mid\mathbf{S}_{0},\nu\right)\\
+ & \propto & \left|\boldsymbol{\Sigma}\right|^{-\frac{J}{2}}\exp\left\{ -\frac{1}{2}\sum_{j=1}^{J}\left(\boldsymbol{\beta}_{j}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\boldsymbol{\Sigma}^{-1}\left(\boldsymbol{\beta}_{j}-\boldsymbol{\mu}_{\beta}\right)\right\} \\
+ &  & \qquad\times\left|\mathbf{S}_{0}\right|^{-\frac{\nu}{2}}\left|\boldsymbol{\Sigma}\right|^{-\frac{\nu-p-1}{2}}\exp\left\{ -\frac{1}{2}\text{tr}\left(\mathbf{S}_{0}\boldsymbol{\Sigma}^{-1}\right)\right\} \\
+ & \propto & \left|\boldsymbol{\Sigma}\right|^{-\frac{J+\nu-p-1}{2}}\exp\left\{ -\frac{1}{2}\left[\sum_{j=1}^{J}\text{tr}\left(\left(\boldsymbol{\beta}_{j}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\boldsymbol{\Sigma}^{-1}\left(\boldsymbol{\beta}_{j}-\boldsymbol{\mu}_{\beta}\right)\right)+\text{tr}\left(\mathbf{S}_{0}\boldsymbol{\Sigma}^{-1}\right)\right]\right\} \\
+ & \propto & \left|\boldsymbol{\Sigma}\right|^{-\frac{J+\nu-p-1}{2}}\exp\left\{ -\frac{1}{2}\left[\sum_{j=1}^{J}\text{tr}\left(\left(\boldsymbol{\beta}_{j}-\boldsymbol{\mu}_{\beta}\right)\left(\boldsymbol{\beta}_{j}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\boldsymbol{\Sigma}^{-1}\right)+\text{tr}\left(\mathbf{S}_{0}\boldsymbol{\Sigma}^{-1}\right)\right]\right\} \\
+ & \propto & \left|\boldsymbol{\Sigma}\right|^{-\frac{J+\nu-p-1}{2}}\exp\left\{ -\frac{1}{2}\left[\text{tr}\left(\sum_{j=1}^{J}\left(\left(\boldsymbol{\beta}_{j}-\boldsymbol{\mu}_{\beta}\right)\left(\boldsymbol{\beta}_{j}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\right)\boldsymbol{\Sigma}^{-1}+\mathbf{S}_{0}\boldsymbol{\Sigma}^{-1}\right)\right]\right\} \\
+ & \propto & \left|\boldsymbol{\Sigma}\right|^{-\frac{J+\nu-p-1}{2}}\exp\left\{ -\frac{1}{2}\left[\text{tr}\left(\sum_{j=1}^{J}\left(\left(\boldsymbol{\beta}_{j}-\boldsymbol{\mu}_{\beta}\right)\left(\boldsymbol{\beta}_{j}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\right)+\mathbf{S}_{0}\right)\boldsymbol{\boldsymbol{\Sigma}}^{-1}\right]\right\} \\
+ & = & \text{Wish}\left(\left(\sum_{j=1}^{J}\left(\left(\boldsymbol{\beta}_{j}-\boldsymbol{\mu}_{\beta}\right)\left(\boldsymbol{\beta}_{j}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\right)+\mathbf{S}_{0}\right)^{-1},J+\nu\right).
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace bigskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\emph on
+Dispersion (i.e., size) parameter (
+\begin_inset Formula $\alpha$
+\end_inset
+
+):
+\emph default
+
+\begin_inset Formula 
+\begin{eqnarray*}
+\left[\alpha\mid\cdot\right] & \propto & \prod_{j=1}^{J}\prod_{i=1}^{n_{j}}\left[z_{ij}\mid\boldsymbol{\beta}_{j},\alpha\right]\left[\alpha\right]\\
+ & \propto & \prod_{j=1}^{J}\prod_{i=1}^{n_{j}}\text{ZTNB}\left(z_{ij}\mid\mathbf{x}_{ij}^{\prime}\boldsymbol{\beta}_{j},\alpha\right)\text{Gamma}\left(\alpha\mid a,b\right).
+\end{eqnarray*}
+
+\end_inset
+
+The update for 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ proceeds using Metropolis-Hastings.
+ 
+\end_layout
+
+\end_body
+\end_document
