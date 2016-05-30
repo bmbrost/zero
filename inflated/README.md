@@ -2,6 +2,8 @@
 
 MCMC algorithms for implementing zero-inflated mixture models for count data
 
+#### Contents
+
 ##### Standard zero-inflated Poisson model
 - *zi.poisson.pdf.R*: Model statement and full conditional distributions
 - *zi.poisson.sim.R*: Simulate data and fit model

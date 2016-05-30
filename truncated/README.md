@@ -2,6 +2,8 @@
 
 MCMC algorithms for implementing zero-truncated Poisson or negative binomial models for count data
 
+#### Contents
+
 ##### Standard zero-truncated Poisson model
 - *zt.poisson.pdf.R*: Model statement and full conditional distributions
 - *zt.poisson.sim.R*: Simulate data and fit model
