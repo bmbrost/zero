@@ -1,8 +1,8 @@
 #
 #
-# Bayesian zero-truncated negative binomial generalized linear model
+# Zero-truncated negative binomial model for count data
 #
-# Function name: zt.nb.glm.MCMC
+# Function name: zt.nb.MCMC
 #
 # Author: Brian M. Brost
 # Contact: bmbrost@gmail.com
@@ -42,7 +42,7 @@
 #
 #
 
-zt.nb.glm.mcmc <- function(z,X,priors,start,tune,adapt=TRUE,n.mcmc=1000){
+zt.nb.mcmc <- function(z,X,priors,start,tune,adapt=TRUE,n.mcmc=1000){
 
 	###
 	###  Libraries and Subroutines

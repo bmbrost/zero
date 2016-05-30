@@ -91,7 +91,7 @@
 
 \shape smallcaps
 \size larger
-Zero-Inflated Poisson Model for Data
+Three-Level Hierarchical Zero-Inflated 
 \end_layout
 
 \begin_layout Plain Layout
@@ -101,7 +101,7 @@ Zero-Inflated Poisson Model for Data
 
 \shape smallcaps
 \size larger
-Collected in Three Hierarchical Levels
+Poisson Model for Count Data
 \end_layout
 
 \end_inset
@@ -115,7 +115,7 @@ Brian M.
 \end_layout
 
 \begin_layout Plain Layout
-07 April 2016
+06 April 2016
 \end_layout
 
 \end_inset
@@ -151,8 +151,8 @@ Description
 
 \begin_layout Standard
 A zero-inflated Poisson model for data collected in three hierarchical levels
- (data nested within subgroup nested within group), with varying coefficients
- at the second (subgroup) and third (group) levels.
+ (data, group, and population levels), with varying coefficients at the
+ group level.
 \end_layout
 
 \begin_layout Subsubsection*
@@ -172,36 +172,40 @@ Model statement
 
 \begin_layout Standard
 Let 
-\begin_inset Formula $y_{ijk}$
+\begin_inset Formula $z_{ij}$
 \end_inset
 
- denote observed counts (i.e., 
-\begin_inset Formula $y_{ijk}$
-\end_inset
-
- are integers greater than or equal to 0) for groups 
+, for 
 \begin_inset Formula $i=1,\ldots,N$
 \end_inset
 
-, subgroups 
+ and 
 \begin_inset Formula $j=1,\ldots,n_{i}$
 \end_inset
 
- nested within groups, and replicate observations 
-\begin_inset Formula $k=1,\ldots,m_{ij}$
+, denote observed count data (i.e., 
+\begin_inset Formula $z_{ij}$
 \end_inset
 
- (level-1 units) within subgroup 
+ are integers greater than or equal to 0), where the index 
 \begin_inset Formula $j$
 \end_inset
 
- (level-2 units) and group 
+ denotes replicate observations (level-1 units) within group 
 \begin_inset Formula $i$
 \end_inset
 
- (level-3 units).
+ (level-2 units), and 
+\begin_inset Formula $n_{i}$
+\end_inset
+
+ is the number of observations in group 
+\begin_inset Formula $i$
+\end_inset
+
+.
  Furthermore, let 
-\begin_inset Formula $\mathbf{x}_{ijk}$
+\begin_inset Formula $\mathbf{x}_{ij}$
 \end_inset
 
  be a vector of 
@@ -209,48 +213,30 @@ Let
 \end_inset
 
  covariates (including the intercept) associated with 
-\begin_inset Formula $y_{ijk}$
+\begin_inset Formula $y_{ij}$
 \end_inset
 
  and 
-\begin_inset Formula $\boldsymbol{\alpha}_{ij}$
+\begin_inset Formula $\boldsymbol{\beta}_{i}$
 \end_inset
 
- be the corresponding vector of coefficients for subgroup 
-\begin_inset Formula $j$
-\end_inset
-
- in group 
+ be the corresponding vector of coefficients for group 
 \begin_inset Formula $i$
 \end_inset
 
 .
- The vector 
-\begin_inset Formula $\boldsymbol{\beta}_{i}$
-\end_inset
-
- corresponds to group-level coefficients and 
-\begin_inset Formula $\boldsymbol{\mu}_{\beta}$
-\end_inset
-
- is a vector of population-level coefficients.
-\end_layout
-
-\begin_layout Standard
 \begin_inset Formula 
 \begin{eqnarray*}
-y_{ijk} & \sim & \begin{cases}
-\text{Pois}\left(\lambda_{ijk}\right), & z_{ijk}=1\\
-0, & z_{ijk}=0
+y_{ij} & \sim & \begin{cases}
+\text{Pois}\left(\lambda_{ij}\right), & z_{ij}=1\\
+0, & z_{ij}=0
 \end{cases}\\
-z_{ijk} & \sim & \text{Bern}\left(p_{ij}\right)\\
-\text{log}\left(\lambda_{ijk}\right) & = & \mathbf{x}_{ijk}^{\prime}\boldsymbol{\alpha}_{ij}\\
-\boldsymbol{\alpha}_{ij} & \sim & {\cal N}\left(\boldsymbol{\beta}_{i},\boldsymbol{\Sigma}_{\alpha_{i}}\right)\\
-\boldsymbol{\beta}_{i} & \sim & {\cal N}\left(\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}_{\beta}\right)\\
+z_{ij} & \sim & \text{Bern}\left(p_{i}\right)\\
+\log\left(\lambda_{ij}\right) & = & \mathbf{x}_{ij}^{\prime}\boldsymbol{\beta}_{i}\\
+\boldsymbol{\beta}_{i} & \sim & {\cal N}\left(\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}\right)\\
 \boldsymbol{\mu}_{\beta} & \sim & {\cal N}\left(\mathbf{0},\sigma_{\beta}^{2}\mathbf{I}\right)\\
-p_{ij} & \sim & \text{Beta}\left(\alpha_{1},\alpha_{2}\right)\\
-\boldsymbol{\boldsymbol{\Sigma}}_{\alpha_{i}}^{-1} & \sim & \text{Wish}\left(\mathbf{S}_{0}^{-1},\nu\right)\\
-\boldsymbol{\boldsymbol{\Sigma}}_{\beta}^{-1} & \sim & \text{Wish}\left(\mathbf{S}_{0}^{-1},\nu\right)
+\boldsymbol{\boldsymbol{\Sigma}}^{-1} & \sim & \text{Wish}\left(\mathbf{S}_{0}^{-1},\nu\right)\\
+p_{i} & \sim & \text{Beta}\left(\alpha_{1},\alpha_{2}\right)
 \end{eqnarray*}
 
 \end_inset
@@ -266,7 +252,7 @@ Full conditional distributions
 
 \emph on
 Latent mixture component indicator variable (
-\begin_inset Formula $z_{ijk}$
+\begin_inset Formula $z_{ij}$
 \end_inset
 
 ):
@@ -274,11 +260,11 @@ Latent mixture component indicator variable (
 
 \begin_inset Formula 
 \begin{eqnarray*}
-\left[z_{ijk}\mid\cdot\right] & \propto & \left[y_{ijk}\mid\lambda_{ijk},z_{ijk}\right]\left[z_{ijk}\mid p_{ij}\right]\\
- & \propto & \text{Pois}\left(y_{ijk}\mid\lambda_{ijk}\right)^{z_{ijk}}1_{\left\{ y_{ijk}=0\right\} }^{1-z_{ijk}}p_{ij}^{z_{ijk}}\left(1-p_{ij}\right)^{^{1-z_{ijk}}}\\
- & \propto & \left(\frac{\lambda_{ijk}^{y_{ijk}}\exp\left(-\lambda_{ijk}\right)}{y_{ijk}!}\right)^{z_{ijk}}p_{ij}^{z_{ijk}}\left(1-p_{ij}\right)^{^{1-z_{ijk}}}\\
- & \propto & \left(\exp\left(-\lambda_{ijk}\right)\right)^{z_{ijk}}p_{ij}^{z_{ijk}}\left(1-p_{ij}\right)^{^{1-z_{ijk}}}\\
- & \propto & \left(p_{ij}\times\exp\left(-\lambda_{ijk}\right)\right)^{z_{ijk}}\left(1-p_{ij}\right)^{^{1-z_{ijk}}}\\
+\left[z_{ij}\mid\cdot\right] & \propto & \left[y_{ij}\mid\lambda_{ij},z_{ij}\right]\left[z_{ij}\mid p_{i}\right]\\
+ & \propto & \text{Pois}\left(y_{ij}\mid\lambda_{ij}\right)^{z_{ij}}1_{\left\{ y_{ij}=0\right\} }^{1-z_{ij}}p_{i}^{z_{ij}}\left(1-p_{i}\right)^{^{1-z_{ij}}}\\
+ & \propto & \left(\frac{\lambda_{ij}^{y_{ij}}\exp\left(-\lambda_{ij}\right)}{y_{ij}!}\right)^{z_{ij}}p_{i}^{z_{ij}}\left(1-p_{i}\right)^{^{1-z_{ij}}}\\
+ & \propto & \left(\exp\left(-\lambda_{ij}\right)\right)^{z_{ij}}p_{i}^{z_{ij}}\left(1-p_{i}\right)^{^{1-z_{ij}}}\\
+ & \propto & \left(p_{i}\times\exp\left(-\lambda_{ij}\right)\right)^{z_{ij}}\left(1-p_{i}\right)^{^{1-z_{ij}}}\\
  & = & \text{Bern}\left(\tilde{p}\right),
 \end{eqnarray*}
 
@@ -287,25 +273,25 @@ Latent mixture component indicator variable (
 where 
 \begin_inset Formula 
 \[
-\tilde{p}=\frac{p_{ij}\times\exp\left(-\lambda_{ijk}\right)}{p_{i}\times\exp\left(-\lambda_{ijk}\right)+1-p_{ij}}.
+\tilde{p}=\frac{p_{i}\times\exp\left(-\lambda_{ij}\right)}{p_{i}\times\exp\left(-\lambda_{ij}\right)+1-p_{i}}.
 \]
 
 \end_inset
 
 Note that 
-\begin_inset Formula $z_{ijk}$
+\begin_inset Formula $z_{ij}$
 \end_inset
 
- is only estimated for instances where 
-\begin_inset Formula $y_{ijk}=0$
+ is only updated for instances where 
+\begin_inset Formula $y_{ij}=0$
 \end_inset
 
  (
-\begin_inset Formula $z_{ijk}=1$
+\begin_inset Formula $z_{ij}=1$
 \end_inset
 
  when 
-\begin_inset Formula $y_{ijk}>0$
+\begin_inset Formula $y_{ij}>0$
 \end_inset
 
 ).
@@ -323,7 +309,7 @@ Note that
 
 \emph on
 Probability associated with the mixture component indicator variables (
-\begin_inset Formula $p_{ij}$
+\begin_inset Formula $p_{i}$
 \end_inset
 
 ):
@@ -331,10 +317,10 @@ Probability associated with the mixture component indicator variables (
 
 \begin_inset Formula 
 \begin{eqnarray*}
-\left[p_{ij}\mid\cdot\right] & \propto & \prod_{j=1}^{n_{i}}\left[z_{ijk}\mid p_{ij}\right]\left[p_{ij}\mid\alpha_{1},\alpha_{2}\right]\\
- & \propto & \prod_{j=1}^{n_{i}}p_{ij}^{z_{ijk}}\left(1-p_{ij}\right)^{1-z_{ijk}}p_{ij}^{\alpha_{1}-1}\left(1-p_{ij}\right)^{\alpha_{2}-1}\\
- & \propto & p_{ij}^{\sum_{j=1}^{n_{i}}z_{ijk}}\left(1-p_{ij}\right)^{n_{i}-\sum_{j=1}^{n_{i}}z_{ijk}}p_{ij}^{\alpha_{1}-1}\left(1-p_{ij}\right)^{\alpha_{2}-1}\\
- & = & \text{Beta}\left(\sum_{j=1}^{n_{i}}z_{ijk}+\alpha_{1},n_{i}-\sum_{j=1}^{n_{i}}z_{ijk}+\alpha_{2}\right)
+\left[p_{i}\mid\cdot\right] & \propto & \prod_{j=1}^{n_{i}}\left[z_{ij}\mid p_{i}\right]\left[p_{i}\right]\\
+ & \propto & \prod_{j=1}^{n_{i}}p_{i}^{z_{ij}}\left(1-p_{i}\right)^{1-z_{ij}}p_{i}^{\alpha_{1}-1}\left(1-p_{i}\right)^{\alpha_{2}-1}\\
+ & \propto & p_{i}^{\sum_{j=1}^{n_{i}}z_{ij}}\left(1-p_{i}\right)^{n_{i}-\sum_{j=1}^{n_{i}}z_{ij}}p_{i}^{\alpha_{1}-1}\left(1-p_{i}\right)^{\alpha_{2}-1}\\
+ & = & \text{Beta}\left(\sum_{j=1}^{n_{i}}z_{ij}+\alpha_{1},n_{i}-\sum_{j=1}^{n_{i}}z_{ij}+\alpha_{2}\right)
 \end{eqnarray*}
 
 \end_inset
@@ -350,8 +336,8 @@ Probability associated with the mixture component indicator variables (
 \noindent
 
 \emph on
-Subgroup-level regression coefficients (
-\begin_inset Formula $\boldsymbol{\alpha}_{ij}$
+Regression coefficients (
+\begin_inset Formula $\boldsymbol{\beta}_{i}$
 \end_inset
 
 ):
@@ -361,14 +347,14 @@ Subgroup-level regression coefficients (
 \noindent
 \begin_inset Formula 
 \begin{eqnarray*}
-\left[\boldsymbol{\alpha}_{ij}\mid\cdot\right] & \propto & \prod_{k=1}^{m_{ij}}\left[y_{ijk}\mid\lambda_{ijk},z_{ijk}\right]\left[\boldsymbol{\alpha}_{ij}\mid\boldsymbol{\beta}_{i},\boldsymbol{\Sigma}_{\alpha_{i}}\right]\\
- & \propto & \prod_{k=1}^{m_{ij}}\text{Pois}\left(y_{ijk}\mid\lambda_{ijk}\right)^{z_{ijk}}{\cal N}\left(\boldsymbol{\alpha}_{ij}\mid\mathbf{\boldsymbol{\beta}}_{i},\boldsymbol{\Sigma}_{\alpha_{i}}\right).
+\left[\boldsymbol{\beta}_{i}\mid\cdot\right] & \propto & \prod_{j=1}^{n_{i}}\left[y_{ij}\mid\mathbf{x}_{ij}^{\prime}\boldsymbol{\beta}_{i},z_{ij}\right]\left[\boldsymbol{\beta}_{i}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}\right]\\
+ & \propto & \prod_{j=1}^{n_{i}}\text{Pois}\left(y_{ij}\mid\mathbf{x}_{ij}^{\prime}\boldsymbol{\beta}_{i}\right)^{z_{ij}}{\cal N}\left(\boldsymbol{\beta}_{i}\mid\mathbf{\boldsymbol{\mu}_{\beta}},\boldsymbol{\Sigma}\right).
 \end{eqnarray*}
 
 \end_inset
 
 The update for 
-\begin_inset Formula $\boldsymbol{\alpha}_{ij}$
+\begin_inset Formula $\boldsymbol{\beta}_{i}$
 \end_inset
 
  proceeds using Metropolis-Hastings.
@@ -388,64 +374,7 @@ The update for
 \noindent
 
 \emph on
-Group-level regression coefficients (
-\begin_inset Formula $\boldsymbol{\beta}_{i}$
-\end_inset
-
-):
-\end_layout
-
-\begin_layout Standard
-\noindent
-\begin_inset Formula 
-\begin{eqnarray*}
-\left[\boldsymbol{\beta}_{i}\mid\cdot\right] & \propto & \prod_{j=1}^{n_{i}}\left[\boldsymbol{\alpha}_{ij}\mid\boldsymbol{\beta}_{i},\boldsymbol{\Sigma}_{\alpha_{i}}\right]\left[\boldsymbol{\beta}_{i}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}_{\beta}\right]\\
- & \propto & \prod_{j=1}^{n_{i}}{\cal N}\left(\boldsymbol{\alpha}_{ij}\mid\boldsymbol{\beta}_{i},\boldsymbol{\Sigma}_{\alpha_{i}}\right){\cal N}\left(\boldsymbol{\beta}_{i}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}_{\beta}\right)\\
- & \propto & \exp\left\{ \sum_{j=1}^{n_{i}}\left(-\frac{1}{2}\left(\boldsymbol{\alpha}_{ij}-\boldsymbol{\beta}_{i}\right)^{\prime}\boldsymbol{\Sigma}_{\alpha_{i}}^{-1}\left(\boldsymbol{\alpha}_{ij}-\boldsymbol{\beta}_{i}\right)\right)\right\} \\
- &  & \qquad\times\exp\left\{ -\frac{1}{2}\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\boldsymbol{\Sigma}_{\beta}^{-1}\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)\right\} \\
- & \propto & \exp\left\{ -\frac{1}{2}\left(-2\left(\sum_{j=1}^{n_{i}}\mathbf{\boldsymbol{\alpha}}_{ij}^{\prime}\boldsymbol{\Sigma}_{\alpha_{i}}^{-1}\right)\boldsymbol{\beta}_{i}+\boldsymbol{\beta}_{i}^{\prime}\left(n_{i}\boldsymbol{\Sigma}_{\alpha_{i}}^{-1}\right)\boldsymbol{\beta}_{i}\right)\right\} \\
- &  & \qquad\times\exp\left\{ -\frac{1}{2}\left(-2\left(\boldsymbol{\mu}_{\beta}^{\prime}\boldsymbol{\Sigma}_{\beta}^{-1}\right)\boldsymbol{\beta}_{i}+\boldsymbol{\beta}_{i}^{\prime}\left(\boldsymbol{\Sigma}_{\beta}^{-1}\right)\boldsymbol{\beta}_{i}\right)\right\} \\
- & \propto & \exp\left\{ -\frac{1}{2}\left(-2\left(\sum_{j=1}^{n_{i}}\mathbf{\boldsymbol{\alpha}}_{ij}^{\prime}\boldsymbol{\Sigma}_{\alpha_{i}}^{-1}-\boldsymbol{\mu}_{\beta}^{\prime}\boldsymbol{\Sigma}_{\beta}^{-1}\right)\boldsymbol{\beta}_{i}+\boldsymbol{\beta}_{i}^{\prime}\left(n_{i}\boldsymbol{\Sigma}_{\alpha_{i}}^{-1}+\boldsymbol{\Sigma}_{\beta}^{-1}\right)\boldsymbol{\beta}_{i}\right)\right\} \\
- & = & {\cal N}(\mathbf{A}^{-1}\mathbf{b},\mathbf{A}^{-1}),
-\end{eqnarray*}
-
-\end_inset
-
-where 
-\begin_inset Formula $\mathbf{A}=n_{i}\boldsymbol{\Sigma}_{\alpha_{i}}^{-1}+\boldsymbol{\Sigma}_{\beta}^{-1}$
-\end_inset
-
- and 
-\begin_inset Formula $\mathbf{b}^{\prime}=\mathbf{\boldsymbol{\alpha}}_{i}^{\prime}\boldsymbol{\Sigma}_{\alpha_{i}}^{-1}-\boldsymbol{\mu}_{\beta}^{\prime}\boldsymbol{\Sigma}_{\beta}^{-1}$
-\end_inset
-
-, where 
-\begin_inset Formula $\boldsymbol{\alpha}_{i}$
-\end_inset
-
- is the vector sum 
-\begin_inset Formula $\sum_{j=1}^{n_{i}}\boldsymbol{\alpha}_{ij}$
-\end_inset
-
-.
- 
-\end_layout
-
-\begin_layout Standard
-\noindent
-
-\emph on
-\begin_inset VSpace bigskip
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\noindent
-
-\emph on
-Mean of group-level regression coefficients (
+Mean of regression coefficients (
 \begin_inset Formula $\boldsymbol{\mu}_{\beta}$
 \end_inset
 
@@ -456,24 +385,24 @@ Mean of group-level regression coefficients (
 \noindent
 \begin_inset Formula 
 \begin{eqnarray*}
-\left[\boldsymbol{\mu}_{\beta}\mid\cdot\right] & \propto & \prod_{i=1}^{N}\left[\boldsymbol{\beta}_{i}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}_{\beta}\right]\left[\boldsymbol{\mu}_{\beta}\mid\mathbf{0},\sigma_{\mu_{\beta}}^{2}\right]\\
- & \propto & \prod_{i=1}^{N}{\cal N}\left(\boldsymbol{\beta}_{i}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}_{\beta}\right){\cal N}\left(\boldsymbol{\mu}_{\beta}\mid\mathbf{0},\sigma_{\mu_{\beta}}^{2}\mathbf{I}\right)\\
- & \propto & \exp\left\{ \sum_{i=1}^{N}\left(-\frac{1}{2}\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\boldsymbol{\Sigma}_{\beta}^{-1}\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)\right)\right\} \\
- &  & \qquad\times\exp\left\{ -\frac{1}{2}\left(\boldsymbol{\mu}_{\beta}-\mathbf{0}\right)^{\prime}\left(\sigma_{\mu_{\beta}}^{2}\mathbf{I}\right)^{-1}\left(\boldsymbol{\mu}_{\beta}-\mathbf{0}\right)\right\} \\
- & \propto & \exp\left\{ -\frac{1}{2}\left(-2\left(\sum_{i=1}^{N}\mathbf{\boldsymbol{\beta}}_{i}^{\prime}\boldsymbol{\Sigma}_{\beta}^{-1}\right)\boldsymbol{\mu}_{\beta}+\boldsymbol{\mu}_{\beta}^{\prime}\left(N\boldsymbol{\Sigma}_{\beta}^{-1}\right)\boldsymbol{\mu}_{\beta}\right)\right\} \\
- &  & \qquad\times\exp\left\{ -\frac{1}{2}\left(\boldsymbol{\mu}_{\beta}^{\prime}\left(\sigma_{\mu_{\beta}}^{2}\mathbf{I}\right)^{-1}\boldsymbol{\mu}_{\beta}\right)\right\} \\
- & \propto & \exp\left\{ -\frac{1}{2}\left(-2\left(\sum_{i=1}^{N}\mathbf{\boldsymbol{\beta}}_{i}^{\prime}\boldsymbol{\boldsymbol{\Sigma}}_{\beta}^{-1}\right)\boldsymbol{\mu}_{\beta}+\boldsymbol{\mu}_{\beta}^{\prime}\left(N\boldsymbol{\Sigma}_{\beta}^{-1}+\left(\sigma_{\mu_{\beta}}^{2}\mathbf{I}\right)^{-1}\right)\boldsymbol{\mu}_{\beta}\right)\right\} \\
+\left[\boldsymbol{\mu}_{\beta}\mid\cdot\right] & \propto & \prod_{i=1}^{N}\left[\boldsymbol{\beta}_{i}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}\right]\left[\boldsymbol{\mu}_{\beta}\mid\mathbf{0},\sigma_{\beta}^{2}\right]\\
+ & \propto & \prod_{i=1}^{N}{\cal N}\left(\boldsymbol{\beta}_{i}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}\right){\cal N}\left(\boldsymbol{\mu}_{\beta}\mid\mathbf{0},\sigma_{\beta}^{2}\mathbf{I}\right)\\
+ & \propto & \exp\left\{ \sum_{i=1}^{N}\left(-\frac{1}{2}\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\boldsymbol{\Sigma}^{-1}\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)\right)\right\} \\
+ &  & \qquad\times\exp\left\{ -\frac{1}{2}\left(\boldsymbol{\mu}_{\beta}-\mathbf{0}\right)^{\prime}\left(\sigma_{\beta}^{2}\mathbf{I}\right)^{-1}\left(\boldsymbol{\mu}_{\beta}-\mathbf{0}\right)\right\} \\
+ & \propto & \exp\left\{ -\frac{1}{2}\left(-2\left(\sum_{i=1}^{N}\mathbf{\boldsymbol{\beta}}_{i}^{\prime}\boldsymbol{\Sigma}^{-1}\right)\boldsymbol{\mu}_{\beta}+\boldsymbol{\mu}_{\beta}^{\prime}\left(N\boldsymbol{\Sigma}^{-1}\right)\boldsymbol{\mu}_{\beta}\right)\right\} \\
+ &  & \qquad\times\exp\left\{ -\frac{1}{2}\left(\boldsymbol{\mu}_{\beta}^{\prime}\left(\sigma_{\beta}^{2}\mathbf{I}\right)^{-1}\boldsymbol{\mu}_{\beta}\right)\right\} \\
+ & \propto & \exp\left\{ -\frac{1}{2}\left(-2\left(\sum_{i=1}^{N}\mathbf{\boldsymbol{\beta}}_{i}^{\prime}\boldsymbol{\boldsymbol{\Sigma}}^{-1}\right)\boldsymbol{\mu}_{\beta}+\boldsymbol{\mu}_{\beta}^{\prime}\left(N\boldsymbol{\Sigma}^{-1}+\left(\sigma_{\beta}^{2}\mathbf{I}\right)^{-1}\right)\boldsymbol{\mu}_{\beta}\right)\right\} \\
  & = & {\cal N}(\mathbf{A}^{-1}\mathbf{b},\mathbf{A}^{-1}),
 \end{eqnarray*}
 
 \end_inset
 
 where 
-\begin_inset Formula $\mathbf{A}=N\boldsymbol{\Sigma}_{\beta}^{-1}+\left(\sigma_{\mu_{\beta}}^{2}\mathbf{I}\right)^{-1}$
+\begin_inset Formula $\mathbf{A}=N\boldsymbol{\boldsymbol{\Sigma}}^{-1}+\left(\sigma_{\beta}^{2}\mathbf{I}\right)^{-1}$
 \end_inset
 
  and 
-\begin_inset Formula $\mathbf{b}^{\prime}=\boldsymbol{\beta}^{\prime}\boldsymbol{\boldsymbol{\Sigma}}_{\beta}^{-1}$
+\begin_inset Formula $\mathbf{b}^{\prime}=\boldsymbol{\beta}^{\prime}\boldsymbol{\Sigma}^{-1}$
 \end_inset
 
 , where 
@@ -502,8 +431,8 @@ where
 \noindent
 
 \emph on
-Variance-covariance of group-level regression coefficients (
-\begin_inset Formula $\boldsymbol{\Sigma}_{\beta}$
+Variance-covariance of regression coefficients (
+\begin_inset Formula $\boldsymbol{\Sigma}$
 \end_inset
 
 ):
@@ -513,50 +442,15 @@ Variance-covariance of group-level regression coefficients (
 \noindent
 \begin_inset Formula 
 \begin{eqnarray*}
-\left[\boldsymbol{\boldsymbol{\Sigma}}_{\beta}\mid\cdot\right] & \propto & \prod_{i=1}^{N}\left[\boldsymbol{\beta}_{i}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}_{\beta}\right]\left[\boldsymbol{\Sigma}_{\beta}\mid\mathbf{S}_{0},\nu\right]\\
- & \propto & \prod_{i=1}^{N}{\cal N}\left(\boldsymbol{\beta}_{i}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}_{\beta}\right)\text{Wish}\left(\boldsymbol{\Sigma}_{\beta}\mid\mathbf{S}_{0},\nu\right)\\
- & \propto & \left|\boldsymbol{\Sigma}_{\beta}\right|^{-\frac{N}{2}}\exp\left\{ -\frac{1}{2}\sum_{i=1}^{N}\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\boldsymbol{\Sigma}_{\beta}^{-1}\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)\right\} \\
- &  & \qquad\times\left|\mathbf{S}_{0}\right|^{-\frac{\nu}{2}}\left|\boldsymbol{\Sigma}_{\beta}\right|^{-\frac{\nu-p-1}{2}}\exp\left\{ -\frac{1}{2}\text{tr}\left(\mathbf{S}_{0}\boldsymbol{\Sigma}_{\beta}^{-1}\right)\right\} \\
- & \propto & \left|\boldsymbol{\Sigma}_{\beta}\right|^{-\frac{N+\nu-p-1}{2}}\exp\left\{ -\frac{1}{2}\left[\sum_{i=1}^{N}\text{tr}\left(\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\boldsymbol{\Sigma}_{\beta}^{-1}\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)\right)+\text{tr}\left(\mathbf{S}_{0}\boldsymbol{\Sigma}_{\beta}^{-1}\right)\right]\right\} \\
- & \propto & \left|\boldsymbol{\Sigma}_{\beta}\right|^{-\frac{N+\nu-p-1}{2}}\exp\left\{ -\frac{1}{2}\left[\sum_{i=1}^{N}\text{tr}\left(\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\boldsymbol{\Sigma}_{\beta}^{-1}\right)+\text{tr}\left(\mathbf{S}_{0}\boldsymbol{\Sigma}_{\beta}^{-1}\right)\right]\right\} \\
- & \propto & \left|\boldsymbol{\Sigma}_{\beta}\right|^{-\frac{N+\nu-p-1}{2}}\exp\left\{ -\frac{1}{2}\left[\text{tr}\left(\sum_{i=1}^{N}\left(\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\right)\boldsymbol{\Sigma}_{\beta}^{-1}+\mathbf{S}_{0}\boldsymbol{\Sigma}_{\beta}^{-1}\right)\right]\right\} \\
- & \propto & \left|\boldsymbol{\Sigma}_{\beta}\right|^{-\frac{N+\nu-p-1}{2}}\exp\left\{ -\frac{1}{2}\left[\text{tr}\left(\sum_{i=1}^{N}\left(\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\right)+\mathbf{S}_{0}\right)\boldsymbol{\boldsymbol{\Sigma}}_{\beta}^{-1}\right]\right\} \\
+\left[\boldsymbol{\boldsymbol{\Sigma}}\mid\cdot\right] & \propto & \prod_{i=1}^{N}\left[\boldsymbol{\beta}_{i}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}\right]\left[\boldsymbol{\Sigma}\mid\mathbf{S}_{0},\nu\right]\\
+ & \propto & \prod_{i=1}^{N}{\cal N}\left(\boldsymbol{\beta}_{i}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}\right)\text{Wish}\left(\boldsymbol{\Sigma}\mid\mathbf{S}_{0},\nu\right)\\
+ & \propto & \left|\boldsymbol{\Sigma}\right|^{-\frac{N}{2}}\exp\left\{ -\frac{1}{2}\sum_{i=1}^{N}\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\boldsymbol{\Sigma}^{-1}\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)\right\} \\
+ &  & \qquad\times\left|\mathbf{S}_{0}\right|^{-\frac{\nu}{2}}\left|\boldsymbol{\Sigma}\right|^{-\frac{\nu-p-1}{2}}\exp\left\{ -\frac{1}{2}\text{tr}\left(\mathbf{S}_{0}\boldsymbol{\Sigma}^{-1}\right)\right\} \\
+ & \propto & \left|\boldsymbol{\Sigma}\right|^{-\frac{N+\nu-p-1}{2}}\exp\left\{ -\frac{1}{2}\left[\sum_{i=1}^{N}\text{tr}\left(\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\boldsymbol{\Sigma}^{-1}\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)\right)+\text{tr}\left(\mathbf{S}_{0}\boldsymbol{\Sigma}^{-1}\right)\right]\right\} \\
+ & \propto & \left|\boldsymbol{\Sigma}\right|^{-\frac{N+\nu-p-1}{2}}\exp\left\{ -\frac{1}{2}\left[\sum_{i=1}^{N}\text{tr}\left(\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\boldsymbol{\Sigma}^{-1}\right)+\text{tr}\left(\mathbf{S}_{0}\boldsymbol{\Sigma}^{-1}\right)\right]\right\} \\
+ & \propto & \left|\boldsymbol{\Sigma}\right|^{-\frac{N+\nu-p-1}{2}}\exp\left\{ -\frac{1}{2}\left[\text{tr}\left(\sum_{i=1}^{N}\left(\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\right)\boldsymbol{\Sigma}^{-1}+\mathbf{S}_{0}\boldsymbol{\Sigma}^{-1}\right)\right]\right\} \\
+ & \propto & \left|\boldsymbol{\Sigma}\right|^{-\frac{N+\nu-p-1}{2}}\exp\left\{ -\frac{1}{2}\left[\text{tr}\left(\sum_{i=1}^{N}\left(\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\right)+\mathbf{S}_{0}\right)\boldsymbol{\boldsymbol{\Sigma}}^{-1}\right]\right\} \\
  & = & \text{Wish}\left(\left(\sum_{i=1}^{N}\left(\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)\left(\boldsymbol{\beta}_{i}-\boldsymbol{\mu}_{\beta}\right)^{\prime}\right)+\mathbf{S}_{0}\right)^{-1},N+\nu\right).
-\end{eqnarray*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\noindent
-
-\emph on
-\begin_inset VSpace bigskip
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\noindent
-
-\emph on
-Variance-covariance of subgroup-level regression coefficients (
-\begin_inset Formula $\boldsymbol{\Sigma}_{\alpha_{i}}$
-\end_inset
-
-):
-\end_layout
-
-\begin_layout Standard
-\noindent
-\begin_inset Formula 
-\begin{eqnarray*}
-\left[\boldsymbol{\boldsymbol{\Sigma}}_{\alpha_{i}}\mid\cdot\right] & \propto & \prod_{j=1}^{n_{i}}\left[\alpha_{ij}\mid\boldsymbol{\beta}_{i},\boldsymbol{\Sigma}_{\alpha_{i}}\right]\left[\boldsymbol{\Sigma}_{\alpha_{i}}\mid\mathbf{S}_{0},\nu\right]\\
- & \propto & \prod_{j=1}^{n_{i}}{\cal N}\left(\alpha_{ij}\mid\boldsymbol{\beta}_{i},\boldsymbol{\Sigma}_{\alpha_{i}}\right)\text{Wish}\left(\boldsymbol{\Sigma}_{\alpha_{i}}\mid\mathbf{S}_{0},\nu\right)\\
- & = & \text{Wish}\left(\left(\sum_{j=1}^{n_{i}}\left(\left(\alpha_{ij}-\boldsymbol{\beta}_{i}\right)\left(\alpha_{ij}-\boldsymbol{\beta}_{i}\right)^{\prime}\right)+\mathbf{S}_{0}\right)^{-1},n_{i}+\nu\right).
 \end{eqnarray*}
 
 \end_inset

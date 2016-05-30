@@ -74,32 +74,59 @@
 \begin_body
 
 \begin_layout Standard
-\noindent
 \align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="2">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="left" valignment="bottom" width="4.9in">
+<column alignment="right" valignment="bottom" width="1.25in">
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
 
 \shape smallcaps
 \size larger
-Poisson Generalized Linear Mixed Model for
+Three-Level Hierarchical Zero-Truncated
 \end_layout
 
-\begin_layout Standard
-\noindent
-\align center
+\begin_layout Plain Layout
+\begin_inset VSpace 0.25cm
+\end_inset
+
 
 \shape smallcaps
 \size larger
-Zero-truncated Count Data
+Negative Binomial Model for Count Data
 \end_layout
 
-\begin_layout Standard
-\align center
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
 Brian M.
- Brost
+ Brost 
 \end_layout
 
-\begin_layout Standard
-\align center
+\begin_layout Plain Layout
 23 March 2016
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset VSpace -0.5cm
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -107,7 +134,7 @@ Brian M.
 \align center
 \begin_inset CommandInset line
 LatexCommand rule
-width "75col%"
+width "100col%"
 height "0.5pt"
 
 \end_inset
@@ -120,8 +147,9 @@ Description
 \end_layout
 
 \begin_layout Standard
-A generalized linear mixed model with varying-coefficients for zero-truncated,
- grouped count data.
+A zero-truncated negative binomial model for count data collected in three
+ hierarchical levels (data, group, and population levels), with varying
+ coefficients at the group level.
 \end_layout
 
 \begin_layout Subsubsection*
@@ -129,25 +157,25 @@ Implementation
 \end_layout
 
 \begin_layout Standard
-The file zt.poisson.varying.coef.sim.R simulates data according to the model
- statement presented below, and zt.poisson.varying.coef.mcmc.R contains the MCMC
- algorithm for model fitting.
+The file zt.nb.varying.coef.sim.3.R simulates data according to the model statement
+ presented below, and zt.nb.varying.coef.mcmc.3.R contains the MCMC algorithm
+ for model fitting.
  
 \end_layout
 
 \begin_layout Subsubsection*
-Derivation of zero-truncated Poisson distribution
+Derivation of zero-truncated negative binomial distribution
 \end_layout
 
 \begin_layout Standard
-The probability mass function of the (non-truncated) Poisson distribution
- is:
+The probability mass function of the (non-truncated) negative binomial distribut
+ion is:
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\left[z\right]=\frac{\lambda^{z}\exp\left(-\lambda\right)}{z!}.
+\left[z\right]=\left(\frac{\Gamma\left(z+\alpha\right)}{\Gamma\left(a\right)\Gamma\left(z+1\right)}\right)\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}\left(1-\frac{\alpha}{\lambda+\alpha}\right)^{z}
 \end{equation}
 
 \end_inset
@@ -159,8 +187,8 @@ It follows that the probability that
  is 
 \begin_inset Formula 
 \begin{eqnarray}
-\left[z\mid z=0\right] & = & \frac{\lambda^{0}\exp\left(-\lambda\right)}{0!}\\
- & = & \exp\left(-\lambda\right),
+\left[z\mid z=0\right] & = & \left(\frac{\Gamma\left(\alpha\right)}{\Gamma\left(a\right)\Gamma\left(1\right)}\right)\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}\left(1-\frac{\alpha}{\lambda+\alpha}\right)^{0}\\
+ & = & \left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha},
 \end{eqnarray}
 
 \end_inset
@@ -170,16 +198,16 @@ and thus the probability that
 \end_inset
 
  is 
-\begin_inset Formula $1-\left[z\mid z=0\right]=1-\exp\left(-\lambda\right)$
+\begin_inset Formula $1-\left[z\mid z=0\right]=1-\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}$
 \end_inset
 
 .
- We arrive at the density function of the zero-truncated Poisson distribution
- by excluding the probability that 
+ We arrive at the density function of the zero-truncated negative binomial
+ distribution by excluding the probability that 
 \begin_inset Formula $z=0$
 \end_inset
 
- from the standard Poisson distribution (Eq.
+ from the standard negative binomial distribution (Eq.
  1).
  This is accomplished by dividing Eq.
  1 by 
@@ -188,15 +216,16 @@ and thus the probability that
 
 :
 \begin_inset Formula 
-\begin{equation}
-\left[z\mid z>0\right]=\frac{\lambda^{z}\exp\left(-\lambda\right)}{\left(1-\exp\left(-\lambda\right)\right)z!}.
-\end{equation}
+\begin{eqnarray}
+\left[z\mid z>0\right] & = & \left(\frac{\Gamma\left(z+\alpha\right)}{\Gamma\left(a\right)\Gamma\left(z+1\right)}\right)\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}\left(1-\frac{\alpha}{\lambda+\alpha}\right)^{z}\left(1-\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}\right)^{-1}\\
+ & = & \text{NB}\left(z\mid\lambda,\alpha\right)\left(1-\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}\right)^{-1}.
+\end{eqnarray}
 
 \end_inset
 
-We abbreviate the probability mass function for the zero-truncated Poisson
+We abbreviate the density function for the zero-truncated negative binomial
  distribution as 
-\begin_inset Formula $\text{ZTP}\left(\lambda_{i}\right)$
+\begin_inset Formula $\text{ZTNB}\left(\lambda,\alpha\right)$
 \end_inset
 
 .
@@ -220,7 +249,7 @@ Let
 \end_inset
 
 , denote observed, non-zero count data (i.e., 
-\begin_inset Formula $z_{i}$
+\begin_inset Formula $z_{ij}$
 \end_inset
 
  are integers greater than 0), where the index 
@@ -261,16 +290,14 @@ Let
 \end_inset
 
 .
-\end_layout
-
-\begin_layout Standard
 \begin_inset Formula 
 \begin{eqnarray*}
-z_{ij}\mid z_{ij}>0 & \sim & \text{ZTP}\left(\lambda_{ij}\right)\\
+z_{ij}\mid z_{ij}>0 & \sim & \text{ZTNB}\left(\lambda_{ij},\alpha\right)\\
 \log\left(\lambda_{ij}\right) & = & \mathbf{x}_{ij}^{\prime}\boldsymbol{\beta}_{j}\\
 \boldsymbol{\beta}_{j} & \sim & {\cal N}\left(\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}\right)\\
 \boldsymbol{\mu}_{\beta} & \sim & {\cal N}\left(\mathbf{0},\sigma_{\beta}^{2}\mathbf{I}\right)\\
-\boldsymbol{\boldsymbol{\Sigma}}^{-1} & \sim & \text{Wish}\left(\mathbf{S}_{0}^{-1},\nu\right)
+\boldsymbol{\boldsymbol{\Sigma}}^{-1} & \sim & \text{Wish}\left(\mathbf{S}_{0}^{-1},\nu\right)\\
+\alpha & \sim & \text{Gamma}\left(a,b\right)
 \end{eqnarray*}
 
 \end_inset
@@ -297,8 +324,8 @@ Regression coefficients (
 \noindent
 \begin_inset Formula 
 \begin{eqnarray*}
-\left[\boldsymbol{\beta}_{j}\mid\cdot\right] & \propto & \prod_{i=1}^{n_{j}}\left[z_{ij}\mid\mathbf{x}_{ij}^{\prime}\boldsymbol{\beta}_{j}\right]\left[\boldsymbol{\beta}_{j}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}\right]\\
- & \propto & \prod_{i=1}^{n_{j}}\text{ZTP}\left(z_{ij}\mid\mathbf{x}_{ij}^{\prime}\boldsymbol{\beta}_{j}\right){\cal N}\left(\boldsymbol{\beta}_{j}\mid\mathbf{\boldsymbol{\mu}_{\beta}},\boldsymbol{\Sigma}\right).
+\left[\boldsymbol{\beta}_{j}\mid\cdot\right] & \propto & \prod_{i=1}^{n_{j}}\left[z_{ij}\mid\mathbf{x}_{ij}^{\prime}\boldsymbol{\beta}_{j},\alpha\right]\left[\boldsymbol{\beta}_{j}\mid\boldsymbol{\mu}_{\beta},\boldsymbol{\Sigma}\right]\\
+ & \propto & \prod_{i=1}^{n_{j}}\text{ZTNB}\left(z_{ij}\mid\mathbf{x}_{ij}^{\prime}\boldsymbol{\beta}_{j},\alpha\right){\cal N}\left(\boldsymbol{\beta}_{j}\mid\mathbf{\boldsymbol{\mu}_{\beta}},\boldsymbol{\Sigma}\right).
 \end{eqnarray*}
 
 \end_inset
@@ -411,6 +438,40 @@ Variance-covariance of regression coefficients (
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace bigskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\emph on
+Dispersion (i.e., size) parameter (
+\begin_inset Formula $\alpha$
+\end_inset
+
+):
+\emph default
+
+\begin_inset Formula 
+\begin{eqnarray*}
+\left[\alpha\mid\cdot\right] & \propto & \prod_{j=1}^{J}\prod_{i=1}^{n_{j}}\left[z_{ij}\mid\boldsymbol{\beta}_{j},\alpha\right]\left[\alpha\right]\\
+ & \propto & \prod_{j=1}^{J}\prod_{i=1}^{n_{j}}\text{ZTNB}\left(z_{ij}\mid\mathbf{x}_{ij}^{\prime}\boldsymbol{\beta}_{j},\alpha\right)\text{Gamma}\left(\alpha\mid a,b\right).
+\end{eqnarray*}
+
+\end_inset
+
+The update for 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ proceeds using Metropolis-Hastings.
+ 
 \end_layout
 
 \end_body

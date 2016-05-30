@@ -1,8 +1,8 @@
 #
 #
-# Bayesian zero-truncated Poisson generalized linear model
+# Zero-truncated Poisson model for count data
 #
-# Function name: zt.poisson.glm.MCMC
+# Function name: zt.poisson.MCMC
 #
 # Author: Brian M. Brost
 # Contact: bmbrost@gmail.com
@@ -36,7 +36,7 @@
 #
 #
 
-zt.poisson.glm.mcmc <- function(z,X,priors,start,tune,adapt=TRUE,n.mcmc=1000){
+zt.poisson.mcmc <- function(z,X,priors,start,tune,adapt=TRUE,n.mcmc=1000){
 
 	###
 	###  Libraries and Subroutines

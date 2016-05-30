@@ -1,8 +1,10 @@
 #
 #
-# Bayesian zero-truncated negative binomial generalized linear mixed model for count data
+# Zero-truncated negative binomial model for count data collected in three
+# hierarchical levels (data, group, and population levels), with varying 
+# coefficients at the group level
 #
-# Function name: zt.nb.varying.coef.MCMC
+# Function name: zt.nb.varying.coef.3.MCMC
 #
 # Author: Brian M. Brost
 # Contact: bmbrost@gmail.com
@@ -50,7 +52,7 @@
 #
 #
 
-zt.nb.varying.coef.mcmc <- function(z,X,g,priors,start,tune,adapt=TRUE,n.mcmc=1000){
+zt.nb.varying.coef.3.mcmc <- function(z,X,g,priors,start,tune,adapt=TRUE,n.mcmc=1000){
 
 	###
 	###  Libraries and Subroutines

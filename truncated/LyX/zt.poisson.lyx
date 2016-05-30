@@ -76,30 +76,58 @@
 \begin_layout Standard
 \noindent
 \align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="2">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="left" valignment="bottom" width="4.9in">
+<column alignment="right" valignment="bottom" width="1.25in">
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
 
 \shape smallcaps
 \size larger
-Negative Binomial Generalized Linear Model for
+Zero-Truncated Poisson Model
 \end_layout
 
-\begin_layout Standard
-\noindent
-\align center
+\begin_layout Plain Layout
+\begin_inset VSpace 0.25cm
+\end_inset
+
 
 \shape smallcaps
 \size larger
-Zero-truncated Count Data
+for Count Data
 \end_layout
 
-\begin_layout Standard
-\align center
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
 Brian M.
- Brost
+ Brost 
 \end_layout
 
-\begin_layout Standard
-\align center
-23 March 2016
+\begin_layout Plain Layout
+06 April 2016
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset VSpace -0.5cm
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -107,7 +135,7 @@ Brian M.
 \align center
 \begin_inset CommandInset line
 LatexCommand rule
-width "75col%"
+width "100col%"
 height "0.5pt"
 
 \end_inset
@@ -120,7 +148,7 @@ Description
 \end_layout
 
 \begin_layout Standard
-A generarlized linear model for zero-truncated count data.
+A zero-truncated Poisson model for count data.
 \end_layout
 
 \begin_layout Subsubsection*
@@ -128,24 +156,24 @@ Implementation
 \end_layout
 
 \begin_layout Standard
-The file zt.nb.glm.sim.R simulates data according to the model statement presented
- below, and zt.nb.glm.mcmc.R contains the MCMC algorithm for model fitting.
+The file zt.poisson.sim.R simulates data according to the model statement presented
+ below, and zt.poisson.mcmc.R contains the MCMC algorithm for model fitting.
  
 \end_layout
 
 \begin_layout Subsubsection*
-Deriviation of zero-truncated negative binomial distribution
+Derivation of zero-truncated Poisson distribution
 \end_layout
 
 \begin_layout Standard
-The density function of the regural (non-truncated) negative binomial distributi
-on is:
+The probability mass function of the (non-truncated) Poisson distribution
+ is:
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\left[z\right]=\left(\frac{\Gamma\left(z+\alpha\right)}{\Gamma\left(a\right)\Gamma\left(z+1\right)}\right)\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}\left(1-\frac{\alpha}{\lambda+\alpha}\right)^{z}
+\left[z\right]=\frac{\lambda^{z}\exp\left(-\lambda\right)}{z!}.
 \end{equation}
 
 \end_inset
@@ -157,8 +185,8 @@ It follows that the probability that
  is 
 \begin_inset Formula 
 \begin{eqnarray}
-\left[z\mid z=0\right] & = & \left(\frac{\Gamma\left(\alpha\right)}{\Gamma\left(a\right)\Gamma\left(1\right)}\right)\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}\left(1-\frac{\alpha}{\lambda+\alpha}\right)^{0}\\
- & = & \left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha},
+\left[z\mid z=0\right] & = & \frac{\lambda^{0}\exp\left(-\lambda\right)}{0!}\\
+ & = & \exp\left(-\lambda\right),
 \end{eqnarray}
 
 \end_inset
@@ -168,34 +196,33 @@ and thus the probability that
 \end_inset
 
  is 
-\begin_inset Formula $1-\left[z\mid z=0\right]=1-\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}$
+\begin_inset Formula $1-\left[z\mid z=0\right]=1-\exp\left(-\lambda\right)$
 \end_inset
 
 .
- We arrive at the density function of the zero-truncated negative binomial
- distribution by excluding the probability that 
+ We arrive at the density function of the zero-truncated Poisson distribution
+ by excluding the probability that 
 \begin_inset Formula $z=0$
 \end_inset
 
- from the standard negative binomial distribution (Eq.
+ from the standard Poisson distribution (Eq.
  1).
- This is accompolished by dividing Eq.
+ This is accomplished by dividing Eq.
  1 by 
 \begin_inset Formula $\left[z\mid z=0\right]$
 \end_inset
 
 :
 \begin_inset Formula 
-\begin{eqnarray}
-\left[z\mid z>0\right] & = & \left(\frac{\Gamma\left(z+\alpha\right)}{\Gamma\left(a\right)\Gamma\left(z+1\right)}\right)\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}\left(1-\frac{\alpha}{\lambda+\alpha}\right)^{z}\left(1-\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}\right)^{-1}\\
- & = & \text{NB}\left(z\mid\lambda,\alpha\right)\left(1-\left(\frac{\alpha}{\alpha+\lambda}\right)^{\alpha}\right)^{-1}.
-\end{eqnarray}
+\begin{equation}
+\left[z\mid z>0\right]=\frac{\lambda^{z}\exp\left(-\lambda\right)}{\left(1-\exp\left(-\lambda\right)\right)z!}.
+\end{equation}
 
 \end_inset
 
-We abbreviate the density function for the zero-truncated negative binomial
+We abbreviate the probability mass function for the zero-truncated Poisson
  distribution as 
-\begin_inset Formula $\text{ZTNB}\left(\lambda,\alpha\right)$
+\begin_inset Formula $\text{ZTP}\left(\lambda_{i}\right)$
 \end_inset
 
 .
@@ -214,11 +241,11 @@ Let
 \begin_inset Formula $i=1,\ldots,n$
 \end_inset
 
-, be observed count data (i.e., 
+, be observed, non-zero count data (i.e., 
 \begin_inset Formula $z_{i}$
 \end_inset
 
- are integers greater than or equal to 0).
+ are integers greater than 0).
  Also let 
 \begin_inset Formula $\mathbf{x}_{i}$
 \end_inset
@@ -234,23 +261,14 @@ Let
  be the corresponding coefficients.
 \begin_inset Formula 
 \begin{eqnarray*}
-z_{i} & \sim & \text{NB}\left(\lambda_{i},\alpha\right)\\
+z_{i}\mid z_{i}>0 & \sim & \text{ZTP}\left(\lambda_{i}\right)\\
 \log\left(\lambda_{i}\right) & = & \mathbf{x}_{i}^{\prime}\boldsymbol{\beta}\\
-\boldsymbol{\beta} & \sim & {\cal N}(\mathbf{0},\sigma_{\beta}^{2}\mathbf{I})\\
-\alpha & \sim & \text{Gamma}(a,b),
+\boldsymbol{\beta} & \sim & {\cal N}(\mathbf{0},\sigma_{\beta}^{2}\mathbf{I})
 \end{eqnarray*}
 
 \end_inset
 
-where 
-\begin_inset Formula $\text{E}\left[z_{i}\right]=\lambda_{i}$
-\end_inset
 
- and 
-\begin_inset Formula $\text{Var}\left[z_{i}\right]=\lambda_{i}+\frac{\lambda_{i}^{2}}{\alpha}$
-\end_inset
-
-.
 \end_layout
 
 \begin_layout Subsubsection*
@@ -270,48 +288,14 @@ Regression coefficients (
 
 \begin_inset Formula 
 \begin{eqnarray*}
-\left[\boldsymbol{\beta}\mid\cdot\right] & \propto & \prod_{i=1}^{n}\left[z_{i}\mid\boldsymbol{\beta},\alpha\right]\left[\boldsymbol{\beta}\right]\\
- & \propto & \prod_{i=1}^{n}\text{NB}\left(z_{i}\mid\mathbf{x}_{i}^{\prime}\boldsymbol{\beta},\alpha\right){\cal N}\left(\boldsymbol{\beta}\mid\mathbf{0},\sigma_{\beta}^{2}\mathbf{I}\right).
+\left[\boldsymbol{\beta}\mid\cdot\right] & \propto & \prod_{i=1}^{n}\left[z_{i}\mid\boldsymbol{\beta}\right]\left[\boldsymbol{\beta}\right]\\
+ & \propto & \prod_{i=1}^{n}\text{ZTP}\left(z_{i}\mid\mathbf{x}_{i}^{\prime}\boldsymbol{\beta}\right){\cal N}\left(\boldsymbol{\beta}\mid\mathbf{0},\sigma_{\beta}^{2}\mathbf{I}\right).
 \end{eqnarray*}
 
 \end_inset
 
 The update for 
 \begin_inset Formula $\boldsymbol{\beta}$
-\end_inset
-
- proceeds using Metropolis-Hastings.
- 
-\end_layout
-
-\begin_layout Standard
-\begin_inset VSpace bigskip
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\noindent
-
-\emph on
-Dispersion (i.e., size) parameter (
-\begin_inset Formula $\alpha$
-\end_inset
-
-):
-\emph default
-
-\begin_inset Formula 
-\begin{eqnarray*}
-\left[\alpha\mid\cdot\right] & \propto & \prod_{i=1}^{n}\left[z_{i}|\boldsymbol{\beta},\alpha\right]\left[\alpha\right]\\
- & \propto & \prod_{i=1}^{n}\text{NB}\left(z_{i}\mid\mathbf{x}_{i}^{\prime}\boldsymbol{\beta},\alpha\right)\text{Gamma}\left(\alpha\mid a,b\right).
-\end{eqnarray*}
-
-\end_inset
-
-The update for 
-\begin_inset Formula $\alpha$
 \end_inset
 
  proceeds using Metropolis-Hastings.

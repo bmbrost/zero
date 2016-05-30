@@ -1,8 +1,8 @@
 #
 #
-# Bayesian zero-inflated Poisson generalized linear model
+# Zero-inflated Poisson model for count data
 #
-# Function name: zip.glm.MCMC
+# Function name: zi.poisson.MCMC
 #
 # Author: Brian M. Brost
 # Contact: bmbrost@gmail.com
@@ -28,7 +28,7 @@
 #	X[1,], z[2] corresponds to X[2,], etc.
 # X - design matrix of dimension n x qX containing covariates (plus
 #	intercept) for which inference is desired
-# priors - dist of priors containing the following elements:
+# priors - list of priors containing the following elements:
 #	1. sigma.beta - Standard deviation of normal prior on beta
 #	2. a - first scale parameter of beta prior on p
 #	3. b - second scale parameter of beta prior on p
@@ -42,7 +42,7 @@
 #
 #
 
-zip.glm.mcmc <- function(y,X,priors,start,tune,adapt=TRUE,n.mcmc=1000){
+zi.poisson.mcmc <- function(y,X,priors,start,tune,adapt=TRUE,n.mcmc=1000){
 
 	###
 	###  Libraries and Subroutines
