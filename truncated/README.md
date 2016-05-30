@@ -1,5 +1,5 @@
 # truncated
-MCMC algorithms for implementing zero-truncated Poisson on negative binomial models for count data
+MCMC algorithms for implementing zero-truncated Poisson or negative binomial models for count data
 
 - **zt.poisson.glm.mcmc.R**: MCMC algorithm for estimating parameters of zero-truncated Poisson GLM for counts > 0
 - **zt.poisson.glm.sim.R**: Simulate data according to model specification of zt.poisson.glm.mcmc.R
