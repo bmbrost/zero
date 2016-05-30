@@ -1,6 +1,6 @@
 # truncated
 
-MCMC algorithms for implementing zero-truncated Poisson or negative binomial models for count data
+MCMC algorithms for implementing zero-truncated Poisson and negative binomial models for count data
 
 #### Contents
 
