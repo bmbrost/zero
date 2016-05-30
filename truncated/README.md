@@ -1,4 +1,8 @@
 # truncated
+<<<<<<< HEAD
+=======
+MCMC algorithms for implementing zero-truncated Poisson or negative binomial models for count data
+>>>>>>> origin/master
 
 MCMC algorithms for implementing zero-truncated Poisson or negative binomial models for count data
 
