@@ -47,7 +47,7 @@ alpha <- lapply(1:I,function(x) t(rmvnorm(J,beta[,x],Sigma.alpha[[x]])))
 ### Simulate count data
 ##########################################################
 
-p <- 0.35  # probability of Poisson mixture component
+p <- 0.01  # probability of Poisson mixture component
 z <- rbinom(I*J*K,1,p)  # latent variable indicating mixture component
 table(z)
 
@@ -70,14 +70,14 @@ start <- list(beta=beta,mu.beta=mu.beta,alpha=alpha,p=lapply(1:I,function(x) rep
 priors <- list(sigma.mu.beta=5,S0=diag(qX),nu=qX+1,a=1,b=1)
 tune <- list(alpha=lapply(1:I,function(x) rep(0.01,J)))
 # tune <- list(beta=out1$tune$beta)
-out1 <- zi.poisson.varying.coef.4.mcmc(y,X,g1,g2,priors,start,tune,adapt=TRUE,1000)
+out1 <- zi.poisson.varying.coef.4.mcmc(y,X,g1,g2,priors,start,tune,adapt=TRUE,n.mcmc=1000,Ta=10)
 
 # Examine estimates for beta_i
-g1.idx <- 6  # group idx for plotting beta_j
+g1.idx <- 2  # group idx for plotting beta_j
 matplot(out1$beta[,,g1.idx],type="l",lty=1);abline(h=beta[,g1.idx],col=1:qX,lty=2)
 
 # Examine estimates for alpha_ij
-g2.idx <- 5  # group idx for plotting beta_j
+g2.idx <- 3  # group idx for plotting beta_j
 matplot(out1$alpha[[g1.idx]][,,g2.idx],type="l",lty=1)
 abline(h=alpha[[g1.idx]][,g2.idx],col=1:qX,lty=2)
 
